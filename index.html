@@ -1,0 +1,548 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; -webkit-text-stroke: #000000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; -webkit-text-stroke: #000000; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; color: #0000e9; -webkit-text-stroke: #0000e9}
+    span.s1 {font-kerning: none}
+    span.s2 {font: 12.0px Helvetica; font-kerning: none; color: #000000; -webkit-text-stroke: 0px #000000}
+    span.s3 {font: 13.0px 'Helvetica Neue'; text-decoration: underline ; font-kerning: none; -webkit-text-stroke: 0px #0000e9}
+    span.s4 {font: 12.0px 'Apple Color Emoji'; font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;head&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;Training Block Utilization Dashboard&lt;/title&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/react@18/umd/react.production.min.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
+<p class="p1"><span class="s1">&lt;body&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="root"&gt;&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script type="text/babel"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const { useState, useEffect, useMemo } = React;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const { Filter, RefreshCw, HelpCircle, X } = lucide;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span>const GOOGLE_SCRIPT_URL = '<a href="https://script.google.com/a/macros/canva.com/s/AKfycbyePZwBPVZwO_Img0fHdyNYcT8Fjoe111sZqVpuXyV33fXnFJz7Usg6Vgr7QkhRCHhw/exec"><span class="s3">https://script.google.com/a/macros/canva.com/s/AKfycbyePZwBPVZwO_Img0fHdyNYcT8Fjoe111sZqVpuXyV33fXnFJz7Usg6Vgr7QkhRCHhw/exec</span></a></span></p>
+<p class="p1"><span class="s1">';</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const TrainingBlockDashboard = () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [rawData, setRawData] = useState([]);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [filteredData, setFilteredData] = useState([]);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [viewMode, setViewMode] = useState('weekly');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [filters, setFilters] = useState({ coach: 'All', team: 'All', subgroup: 'All', month: 'All', week: 'All' });</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [showHelp, setShowHelp] = useState(false);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [isLoading, setIsLoading] = useState(true);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [loadError, setLoadError] = useState('');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const [lastUpdated, setLastUpdated] = useState(null);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const excelDateToJSDate = (serial) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (!serial || isNaN(serial)) return null;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const daysFromEpoch = serial - 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const excelEpoch = new Date(1900, 0, 1);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const result = new Date(excelEpoch);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>result.setDate(result.getDate() + daysFromEpoch + 1);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return new Date(result.getFullYear(), result.getMonth(), result.getDate());</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>};</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>useEffect(() =&gt; { loadDataFromGoogleDrive(); }, []);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const loadDataFromGoogleDrive = async () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>setIsLoading(true);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>setLoadError('');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>try {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const response = await fetch(GOOGLE_SCRIPT_URL);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!response.ok) throw new Error('Failed to fetch data from Google Drive');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const jsonData = await response.json();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (jsonData.error) throw new Error(jsonData.error);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const processedData = jsonData.map(row =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>let weekStartDate = null;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const weekStartValue = row["Week Start"];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>if (weekStartValue) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>if (typeof weekStartValue === 'number') weekStartDate = excelDateToJSDate(weekStartValue);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>else if (weekStartValue instanceof Date) weekStartDate = weekStartValue;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>else if (typeof weekStartValue === 'string') weekStartDate = new Date(weekStartValue);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>return {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklyYearMonth: row["Year - Month"] || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weekStart: weekStartDate,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklySubgroup: row.Subgroup || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklyCoach: row.Coach || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklyTeam: row.Team || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>agentName: row["Agent Name"] || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklyTrainingHours: parseFloat(row["Training Total Hours"]) || 0,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>weeklyBlockHours: parseFloat(row["Total Training Block Hours"]) || 0,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlyYearMonth: row["Year - Month_1"] || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlySubgroup: row["Subgroup_1"] || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlyTrainingHours: parseFloat(row["Training Total Hours_1"]) || 0,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlyBlockHours: parseFloat(row["Total Training Block Hours_1"]) || 0,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlyCoach: row["Coach_1"] || row.Coach || "",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>monthlyTeam: row["Team_1"] || row.Team || ""</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>}).filter(row =&gt; row.weekStart &amp;&amp; !isNaN(row.weekStart));</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setRawData(processedData);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setFilteredData(processedData);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setLastUpdated(new Date());</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setIsLoading(false);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>} catch (error) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setLoadError(error.message);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>setIsLoading(false);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>};</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const filterOptions = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const coaches = [...new Set(rawData.map(d =&gt; isWeekly ? d.weeklyCoach : d.monthlyCoach).filter(c =&gt; c &amp;&amp; c !== "#N/A"))].sort();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const teams = [...new Set(rawData.map(d =&gt; isWeekly ? d.weeklyTeam : d.monthlyTeam).filter(t =&gt; t &amp;&amp; t !== "#N/A"))].sort();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const subgroups = [...new Set(rawData.map(d =&gt; isWeekly ? d.weeklySubgroup : d.monthlySubgroup).filter(s =&gt; s &amp;&amp; s !== "#N/A"))].sort();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const weeks = [...new Set(rawData.filter(d =&gt; d.weekStart).map(d =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const y = d.weekStart.getFullYear();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const m = String(d.weekStart.getMonth() + 1).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const day = String(d.weekStart.getDate()).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>return `${y}-${m}-${day}`;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}))].sort();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const months = [...new Set(rawData.map(d =&gt; isWeekly ? d.weeklyYearMonth : d.monthlyYearMonth).filter(m =&gt; m &amp;&amp; m !== "#N/A"))].sort();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return { coaches, teams, subgroups, weeks, months };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [rawData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>useEffect(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>let filtered = [...rawData];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filters.coach !== 'All') filtered = filtered.filter(d =&gt; (isWeekly ? d.weeklyCoach : d.monthlyCoach) === filters.coach);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filters.team !== 'All') filtered = filtered.filter(d =&gt; (isWeekly ? d.weeklyTeam : d.monthlyTeam) === filters.team);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filters.subgroup !== 'All') filtered = filtered.filter(d =&gt; (isWeekly ? d.weeklySubgroup : d.monthlySubgroup) === filters.subgroup);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (!isWeekly &amp;&amp; filters.month !== 'All') filtered = filtered.filter(d =&gt; d.monthlyYearMonth === filters.month);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (isWeekly &amp;&amp; filters.week !== 'All') {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>filtered = filtered.filter(d =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>if (!d.weekStart) return false;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const y = d.weekStart.getFullYear();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const m = String(d.weekStart.getMonth() + 1).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const day = String(d.weekStart.getDate()).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>return `${y}-${m}-${day}` === filters.week;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>setFilteredData(filtered);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filters, rawData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const overallMetrics = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filteredData.length === 0) return { utilization: 0, totalTrainingHours: 0, totalBlockHours: 0 };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const totalTrainingHours = filteredData.reduce((sum, d) =&gt; sum + (isWeekly ? d.weeklyTrainingHours : d.monthlyTrainingHours), 0);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const totalBlockHours = filteredData.reduce((sum, d) =&gt; sum + (isWeekly ? d.weeklyBlockHours : d.monthlyBlockHours), 0);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const utilization = totalBlockHours &gt; 0 ? (totalTrainingHours / totalBlockHours) * 100 : 0;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return { utilization: utilization.toFixed(2), totalTrainingHours: totalTrainingHours.toFixed(1), totalBlockHours: totalBlockHours.toFixed(1) };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filteredData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const subgroupMetrics = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filteredData.length === 0) return [];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const grouped = filteredData.reduce((acc, row) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const subgroup = isWeekly ? row.weeklySubgroup : row.monthlySubgroup;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!subgroup || subgroup === "#N/A") return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!acc[subgroup]) acc[subgroup] = { name: subgroup, trainingHours: 0, blockHours: 0, count: 0 };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[subgroup].trainingHours += isWeekly ? row.weeklyTrainingHours : row.monthlyTrainingHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[subgroup].blockHours += isWeekly ? row.weeklyBlockHours : row.monthlyBlockHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[subgroup].count += 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}, {});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const subgroupData = Object.values(grouped).map(g =&gt; ({</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>name: g.name,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>utilization: g.blockHours &gt; 0 ? ((g.trainingHours / g.blockHours) * 100).toFixed(2) : '0.00',</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>trainingHours: g.trainingHours.toFixed(1),</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>blockHours: g.blockHours.toFixed(1),</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>count: g.count</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>})).sort((a, b) =&gt; parseFloat(b.utilization) - parseFloat(a.utilization));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const totalTrainingHours = subgroupData.reduce((sum, g) =&gt; sum + parseFloat(g.trainingHours), 0);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const totalBlockHours = subgroupData.reduce((sum, g) =&gt; sum + parseFloat(g.blockHours), 0);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const overallUtilization = totalBlockHours &gt; 0 ? ((totalTrainingHours / totalBlockHours) * 100).toFixed(2) : '0.00';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return [{ name: 'Overall', utilization: overallUtilization, trainingHours: totalTrainingHours.toFixed(1), blockHours: totalBlockHours.toFixed(1), count: subgroupData.reduce((sum, g) =&gt; sum + g.count, 0) }, ...subgroupData];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filteredData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const teamMetrics = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filteredData.length === 0) return [];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const grouped = filteredData.reduce((acc, row) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const team = isWeekly ? row.weeklyTeam : row.monthlyTeam;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!team || team === "#N/A") return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!acc[team]) acc[team] = { name: team, trainingHours: 0, blockHours: 0 };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[team].trainingHours += isWeekly ? row.weeklyTrainingHours : row.monthlyTrainingHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[team].blockHours += isWeekly ? row.weeklyBlockHours : row.monthlyBlockHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}, {});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return Object.values(grouped).map(g =&gt; ({</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>name: g.name.length &gt; 30 ? g.name.substring(0, 30) + '...' : g.name,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>utilization: g.blockHours &gt; 0 ? ((g.trainingHours / g.blockHours) * 100).toFixed(2) : '0.00',</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>trainingHours: g.trainingHours.toFixed(1),</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>blockHours: g.blockHours.toFixed(1)</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>})).sort((a, b) =&gt; parseFloat(b.utilization) - parseFloat(a.utilization));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filteredData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const coachMetrics = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filteredData.length === 0) return [];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const grouped = filteredData.reduce((acc, row) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const coach = isWeekly ? row.weeklyCoach : row.monthlyCoach;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!coach || coach === "#N/A") return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!acc[coach]) acc[coach] = { name: coach, trainingHours: 0, blockHours: 0 };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[coach].trainingHours += isWeekly ? row.weeklyTrainingHours : row.monthlyTrainingHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[coach].blockHours += isWeekly ? row.weeklyBlockHours : row.monthlyBlockHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}, {});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return Object.values(grouped).map(g =&gt; ({</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>name: g.name.length &gt; 25 ? g.name.substring(0, 25) + '...' : g.name,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>utilization: g.blockHours &gt; 0 ? ((g.trainingHours / g.blockHours) * 100).toFixed(2) : '0.00',</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>trainingHours: g.trainingHours.toFixed(1),</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>blockHours: g.blockHours.toFixed(1)</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>})).sort((a, b) =&gt; parseFloat(b.utilization) - parseFloat(a.utilization));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filteredData, viewMode]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>const timeTrend = useMemo(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (filteredData.length === 0) return [];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const isWeekly = viewMode === 'weekly';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const grouped = filteredData.reduce((acc, row) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const timeKey = isWeekly ? (row.weekStart ? (() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const y = row.weekStart.getFullYear();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const m = String(row.weekStart.getMonth() + 1).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>const d = String(row.weekStart.getDate()).padStart(2, '0');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>return `${y}-${m}-${d}`;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>})() : null) : row.monthlyYearMonth;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!timeKey) return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (!acc[timeKey]) acc[timeKey] = { time: timeKey, trainingHours: 0, blockHours: 0 };</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[timeKey].trainingHours += isWeekly ? row.weeklyTrainingHours : row.monthlyTrainingHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>acc[timeKey].blockHours += isWeekly ? row.weeklyBlockHours : row.monthlyBlockHours;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>return acc;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}, {});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>let allData = Object.values(grouped).map(t =&gt; ({</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>time: t.time,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>utilization: t.blockHours &gt; 0 ? ((t.trainingHours / t.blockHours) * 100).toFixed(1) : 0</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>})).sort((a, b) =&gt; a.time.localeCompare(b.time));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>if (isWeekly &amp;&amp; allData.length &gt; 0) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const latestWeek = filters.week !== 'All' ? filters.week : allData[allData.length - 1].time;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>const latestIndex = allData.findIndex(d =&gt; d.time === latestWeek);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>if (latestIndex &gt;= 0) allData = allData.slice(Math.max(0, latestIndex - 7), latestIndex + 1);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return allData;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}, [filteredData, viewMode, filters.week]);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>if (isLoading) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div className="w-full min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="text-center"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;RefreshCw className="text-blue-600 animate-spin mx-auto mb-4" size={48} /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;p className="text-xl font-semibold text-slate-800"&gt;Loading Training Data...&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;p className="text-sm text-slate-600 mt-2"&gt;Fetching data from Google Drive&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>if (loadError) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>return (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div className="w-full min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="max-w-2xl bg-white rounded-lg shadow-lg p-8"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="text-center"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="text-red-600 mb-4"&gt;&lt;X size={64} className="mx-auto" /&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h2 className="text-2xl font-bold text-slate-800 mb-4"&gt;Error Loading Data&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;p className="text-slate-600 mb-6"&gt;{loadError}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;p className="font-semibold text-yellow-900 mb-2"&gt;</span><span class="s4">⚠️</span><span class="s1"> Setup Required:&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;ol className="list-decimal list-inside text-sm text-yellow-800 space-y-1"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;li&gt;Open index.html in a text editor&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;li&gt;Find: GOOGLE_SCRIPT_URL&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;li&gt;Replace with your Google Apps Script URL&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;li&gt;Save and re-upload to GitHub&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/ol&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;button onClick={loadDataFromGoogleDrive} className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>Try Again</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>return (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div className="w-full min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div className="max-w-7xl mx-auto"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="bg-white rounded-lg shadow-lg p-6 mb-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="flex justify-between items-center"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;h1 className="text-3xl font-bold text-slate-800 mb-2"&gt;Training Block Utilization Dashboard&lt;/h1&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;p className="text-slate-600"&gt;Auto-refreshing from Google Drive • Last updated: {lastUpdated?.toLocaleString()}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="flex gap-2"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;button onClick={() =&gt; setShowHelp(true)} className="flex items-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;HelpCircle size={20} /&gt; Help</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;button onClick={loadDataFromGoogleDrive} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;RefreshCw size={20} /&gt; Refresh Data</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>{showHelp &amp;&amp; (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;h3 className="text-2xl font-bold"&gt;</span><span class="s4">📊</span><span class="s1"> Dashboard Help&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;button onClick={() =&gt; setShowHelp(false)} className="text-slate-500 hover:text-slate-700"&gt;&lt;X size={24} /&gt;&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="p-6 space-y-4"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;h4 className="font-semibold mb-2"&gt;</span><span class="s4">🔄</span><span class="s1"> Auto-Refresh&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;p className="text-slate-700 text-sm"&gt;Dashboard automatically loads from Google Drive. Click "Refresh Data" for latest updates.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;h4 className="font-semibold mb-2"&gt;</span><span class="s4">📈</span><span class="s1"> Utilization Formula&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;p className="bg-slate-50 p-2 rounded text-sm font-mono"&gt;(Training Hours ÷ Block Hours) × 100&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;h4 className="font-semibold mb-2"&gt;</span><span class="s4">🎨</span><span class="s1"> Color Coding&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;ul className="space-y-1 text-sm"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;li&gt;&lt;span className="text-green-600 font-semibold"&gt;Green:&lt;/span&gt; ≥50%&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;li&gt;&lt;span className="text-yellow-600 font-semibold"&gt;Yellow:&lt;/span&gt; 1-49%&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;li&gt;&lt;span className="text-red-600 font-semibold"&gt;Red:&lt;/span&gt; &amp;lt;1%&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>)}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="mt-4 flex gap-2"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;button onClick={() =&gt; { setViewMode('weekly'); setFilters({...filters, month: 'All'}); }} className={`px-6 py-2 rounded-lg font-semibold ${viewMode === 'weekly' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'}`}&gt;Weekly View&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;button onClick={() =&gt; { setViewMode('monthly'); setFilters({...filters, week: 'All'}); }} className={`px-6 py-2 rounded-lg font-semibold ${viewMode === 'monthly' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'}`}&gt;Monthly View&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="bg-white rounded-lg shadow-lg p-6 mb-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="flex items-center gap-2 mb-4"&gt;&lt;Filter className="text-blue-600" size={20} /&gt;&lt;h2 className="text-xl font-semibold"&gt;Filters&lt;/h2&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;label className="block text-sm font-medium mb-2"&gt;Coach&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;select value={filters.coach} onChange={(e) =&gt; setFilters({...filters, coach: e.target.value})} className="w-full p-2 border rounded-lg"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;option value="All"&gt;All Coaches&lt;/option&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>{filterOptions.coaches.map(c =&gt; &lt;option key={c} value={c}&gt;{c}&lt;/option&gt;)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/select&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;label className="block text-sm font-medium mb-2"&gt;Team&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;select value={filters.team} onChange={(e) =&gt; setFilters({...filters, team: e.target.value})} className="w-full p-2 border rounded-lg"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;option value="All"&gt;All Teams&lt;/option&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>{filterOptions.teams.map(t =&gt; &lt;option key={t} value={t}&gt;{t}&lt;/option&gt;)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/select&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;label className="block text-sm font-medium mb-2"&gt;Subgroup&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;select value={filters.subgroup} onChange={(e) =&gt; setFilters({...filters, subgroup: e.target.value})} className="w-full p-2 border rounded-lg"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;option value="All"&gt;All Subgroups&lt;/option&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>{filterOptions.subgroups.map(s =&gt; &lt;option key={s} value={s}&gt;{s}&lt;/option&gt;)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/select&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>{viewMode === 'monthly' ? (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;label className="block text-sm font-medium mb-2"&gt;Month&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;select value={filters.month} onChange={(e) =&gt; setFilters({...filters, month: e.target.value})} className="w-full p-2 border rounded-lg"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;option value="All"&gt;All Months&lt;/option&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>{filterOptions.months.map(m =&gt; &lt;option key={m} value={m}&gt;{m}&lt;/option&gt;)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>) : (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;label className="block text-sm font-medium mb-2"&gt;Week&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;select value={filters.week} onChange={(e) =&gt; setFilters({...filters, week: e.target.value})} className="w-full p-2 border rounded-lg"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;option value="All"&gt;All Weeks&lt;/option&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>{filterOptions.weeks.map(w =&gt; &lt;option key={w} value={w}&gt;{w}&lt;/option&gt;)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>)}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-lg p-6 mb-6 text-white"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;h2 className="text-2xl font-bold mb-4"&gt;Overall {viewMode === 'weekly' ? 'Weekly' : 'Monthly'} Utilization&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="grid grid-cols-1 md:grid-cols-3 gap-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;p className="text-indigo-100 text-sm mb-2"&gt;Total Training Hours&lt;/p&gt;&lt;p className="text-3xl font-bold"&gt;{overallMetrics.totalTrainingHours}&lt;/p&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;p className="text-indigo-100 text-sm mb-2"&gt;Total Block Hours&lt;/p&gt;&lt;p className="text-3xl font-bold"&gt;{overallMetrics.totalBlockHours}&lt;/p&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;p className="text-indigo-100 text-sm mb-2"&gt;Utilization Rate&lt;/p&gt;&lt;p className="text-3xl font-bold"&gt;{overallMetrics.utilization}%&lt;/p&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;p className="mt-4 text-indigo-100 text-sm"&gt;(Training Hours ÷ Block Hours) × 100 {viewMode === 'weekly' ? '| Columns G &amp; H' : '| Columns T &amp; U'}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="bg-white rounded-lg shadow-lg p-6 mb-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;{viewMode === 'weekly' ? 'Weekly Utilization Trend (Last 8 Weeks)' : 'Monthly Utilization Trend'}&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>{timeTrend.length &gt; 0 ? (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;ResponsiveContainer width="100%" height={300}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;LineChart data={timeTrend}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;XAxis dataKey="time" angle={-45} textAnchor="end" height={80} style={{fontSize: 12}} /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;YAxis /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Tooltip /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Legend /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Line type="monotone" dataKey="utilization" stroke="#3b82f6" strokeWidth={2} name="Utilization %" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/LineChart&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/ResponsiveContainer&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>) : &lt;div className="flex items-center justify-center h-64 text-slate-500"&gt;&lt;p&gt;No data&lt;/p&gt;&lt;/div&gt;}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white rounded-lg shadow-lg p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Utilization by Subgroup&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;ResponsiveContainer width="100%" height={Math.max(300, subgroupMetrics.length * 40)}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;BarChart data={subgroupMetrics} layout="vertical"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;XAxis type="number" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;YAxis dataKey="name" type="category" width={150} style={{fontSize: 11}} /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Tooltip /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Legend /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Bar dataKey="utilization" fill="#10b981" name="Utilization %" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/BarChart&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/ResponsiveContainer&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white rounded-lg shadow-lg p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Utilization by Team (All Teams)&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;ResponsiveContainer width="100%" height={Math.max(300, teamMetrics.length * 40)}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;BarChart data={teamMetrics} layout="vertical"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;XAxis type="number" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;YAxis dataKey="name" type="category" width={150} style={{fontSize: 11}} /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Tooltip /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Legend /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;Bar dataKey="utilization" fill="#f59e0b" name="Utilization %" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/BarChart&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/ResponsiveContainer&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="bg-white rounded-lg shadow-lg p-6 mb-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Utilization by Coach (All Coaches)&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;ResponsiveContainer width="100%" height={Math.max(300, coachMetrics.length * 40)}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;BarChart data={coachMetrics} layout="vertical"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;XAxis type="number" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;YAxis dataKey="name" type="category" width={150} style={{fontSize: 11}} /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;Tooltip /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;Legend /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;Bar dataKey="utilization" fill="#8b5cf6" name="Utilization %" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/BarChart&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/ResponsiveContainer&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="grid grid-cols-1 lg:grid-cols-3 gap-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white rounded-lg shadow-lg p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Subgroup Summary&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="overflow-auto max-h-96"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;table className="w-full text-sm"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;thead className="sticky top-0 bg-slate-100"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-left font-semibold"&gt;Subgroup&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Training&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Block&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Util %&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/thead&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>{subgroupMetrics.map((row, idx) =&gt; (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;tr key={idx} className={`border-b hover:bg-slate-50 ${row.name === 'Overall' ? 'bg-blue-50 font-semibold' : ''}`}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2"&gt;{row.name}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.trainingHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.blockHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className={`font-semibold ${parseFloat(row.utilization) &gt;= 50 ? 'text-green-600' : parseFloat(row.utilization) &gt;= 1 ? 'text-yellow-600' : 'text-red-600'}`}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                  </span>{row.utilization}%</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>))}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/table&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white rounded-lg shadow-lg p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Team Summary&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="overflow-auto max-h-96"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;table className="w-full text-sm"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;thead className="sticky top-0 bg-slate-100"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-left font-semibold"&gt;Team&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Training&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Block&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Util %&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/thead&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>{teamMetrics.map((row, idx) =&gt; (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;tr key={idx} className="border-b hover:bg-slate-50"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2"&gt;{row.name}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.trainingHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.blockHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className={`font-semibold ${parseFloat(row.utilization) &gt;= 50 ? 'text-green-600' : parseFloat(row.utilization) &gt;= 1 ? 'text-yellow-600' : 'text-red-600'}`}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                  </span>{row.utilization}%</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>))}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/table&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white rounded-lg shadow-lg p-6"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;h3 className="text-lg font-semibold mb-4"&gt;Coach Summary&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="overflow-auto max-h-96"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;table className="w-full text-sm"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;thead className="sticky top-0 bg-slate-100"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-left font-semibold"&gt;Coach&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Training&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Block&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;th className="px-3 py-2 text-right font-semibold"&gt;Util %&lt;/th&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/thead&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>{coachMetrics.map((row, idx) =&gt; (</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;tr key={idx} className="border-b hover:bg-slate-50"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2"&gt;{row.name}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.trainingHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;{row.blockHours}&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;td className="px-3 py-2 text-right"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className={`font-semibold ${parseFloat(row.utilization) &gt;= 50 ? 'text-green-600' : parseFloat(row.utilization) &gt;= 1 ? 'text-yellow-600' : 'text-red-600'}`}&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                  </span>{row.utilization}%</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                              </span>&lt;/td&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/tr&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                          </span>))}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/tbody&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/table&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>ReactDOM.render(&lt;TrainingBlockDashboard /&gt;, document.getElementById('root'));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+</body>
+</html>
